@@ -15,8 +15,8 @@ const parseMeasure = (measureStr: string): string[][] => {
     let i = 0;
     while (i < beatStr.length) {
       let currentNote = "";
-      // Collect all prefixes (b for flat, . for dot above)
-      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.')) {
+      // Collect all prefixes (b for flat, . for dot above, ~ for tilde)
+      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~')) {
         currentNote += beatStr[i];
         i++;
       }
@@ -59,11 +59,12 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
         {notes.map((note, i) => {
           const hasFlat = note.includes('b');
           const hasDotAbove = note.includes('.');
-          const baseNote = note.replace(/[b.]/g, '');
+          const hasTilde = note.includes('~');
+          const baseNote = note.replace(/[b.~]/g, '');
           
           // Logic for consecutive '-' characters: 
           // if current is '-' and previous was also '-', show as space
-          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.]/g, '') === '-';
+          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~]/g, '') === '-';
           const displayBase = isSecondDash ? "　" : toFullWidth(baseNote, notationMap);
           
           return (
@@ -71,6 +72,11 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
               {hasFlat && (
                 <span className="absolute -top-7 left-0 right-0 text-center font-normal text-lg md:text-xl">
                   {notationMap["b"] || "♭"}
+                </span>
+              )}
+              {hasTilde && (
+                <span className="absolute -top-7 left-0 right-0 text-center font-normal text-lg md:text-xl">
+                  ~
                 </span>
               )}
               {hasDotAbove && (
