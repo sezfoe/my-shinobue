@@ -55,7 +55,7 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
 
   return (
     <div className={`relative flex flex-col items-center justify-center px-0 ${(beatsCount === 4 || beatsCount === 3) ? 'w-full' : 'min-w-[32px] md:min-w-[36px]'} h-12 text-black`}>
-      <div className={`${getAlignmentClass()} ${getFontSizeClass()} font-medium leading-none`}>
+      <div className={`${getAlignmentClass()} ${getFontSizeClass()} font-semibold leading-none`}>
         {notes.map((note, i) => {
           const hasFlat = note.includes('b');
           const hasDotAbove = note.includes('.');
