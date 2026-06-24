@@ -15,8 +15,8 @@ const parseMeasure = (measureStr: string): string[][] => {
     let i = 0;
     while (i < beatStr.length) {
       let currentNote = "";
-      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp, r for red, g for green, e for blue)
-      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~' || beatStr[i] === '#' || beatStr[i] === 'r' || beatStr[i] === 'g' || beatStr[i] === 'e')) {
+      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp)
+      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~' || beatStr[i] === '#')) {
         currentNote += beatStr[i];
         i++;
       }
@@ -33,7 +33,7 @@ const parseMeasure = (measureStr: string): string[][] => {
   });
 };
 
-const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; beatsCount: number }> = ({ notes, notationMap, beatsCount }) => {
+const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; beatsCount: number; currentColor?: string }> = ({ notes, notationMap, beatsCount, currentColor = "black" }) => {
   const isEighthNote = notes.length >= 2 && notes.length < 4;
   const isSixteenthNote = notes.length >= 4;
   
@@ -61,20 +61,17 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
           const hasSharp = note.includes('#');
           const hasDotAbove = note.includes('.');
           const hasTilde = note.includes('~');
-          const hasRed = note.includes('r');
-          const hasGreen = note.includes('g');
-          const hasBlue = note.includes('e');
-          const baseNote = note.replace(/[b.~#rge]/g, '');
+          const baseNote = note.replace(/[b.~#]/g, '');
           
           // Logic for consecutive '-' characters: 
           // if current is '-' and previous was also '-', show as space
-          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~#rge]/g, '') === '-';
+          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~#]/g, '') === '-';
           const displayBase = isSecondDash ? "　" : toFullWidth(baseNote, notationMap);
           
           let colorClass = "";
-          if (hasRed) colorClass = "text-[#FF0000]";
-          else if (hasGreen) colorClass = "text-[#008000]";
-          else if (hasBlue) colorClass = "text-[#0000FF]";
+          if (currentColor === "red") colorClass = "text-[#FF0000]";
+          else if (currentColor === "green") colorClass = "text-[#008000]";
+          else if (currentColor === "blue") colorClass = "text-[#0000FF]";
           
           return (
             <span key={i} className={`relative inline-flex items-center justify-center w-[1.2em] ${colorClass}`}>
@@ -116,14 +113,14 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
   );
 };
 
-const Measure: React.FC<{ beats: string[][]; index: number; notationMap: Record<string, string>; beatsCount: number }> = ({ beats, notationMap, beatsCount }) => {
+const Measure: React.FC<{ beats: string[][]; index: number; notationMap: Record<string, string>; beatsCount: number; currentColor?: string }> = ({ beats, notationMap, beatsCount, currentColor = "black" }) => {
   const isShortMeasure = beats.length < beatsCount;
   
   return (
     <div className={`relative flex items-center border-r border-black py-2 px-0 ${isShortMeasure ? 'justify-start' : 'justify-center'} w-full h-full`}>
       <div className={`grid gap-0 w-full ${beatsCount === 4 ? 'grid-cols-4' : (beatsCount === 3 ? 'grid-cols-3' : 'flex items-center')}`}>
         {beats.map((beat, i) => (
-          <Beat key={i} notes={beat} notationMap={notationMap} beatsCount={beatsCount} />
+          <Beat key={i} notes={beat} notationMap={notationMap} beatsCount={beatsCount} currentColor={currentColor} />
         ))}
       </div>
     </div>
@@ -192,9 +189,10 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
               {sectionsToRender.map((sectionKey) => {
                 const currentSection = scoreData.sections[sectionKey as keyof typeof scoreData.sections];
                 
-                // Group measures into rows based on "\n" marker or 8-measure limit
-                const rows: { measures: string[] }[] = [];
-                let currentMeasures: string[] = [];
+                // Group measures into rows based on "\n" marker, color controls, or 8-measure limit
+                const rows: { measures: { measureStr: string; color: string }[] }[] = [];
+                let currentMeasures: { measureStr: string; color: string }[] = [];
+                let currentColor = "black";
                 
                 currentSection.forEach((item: string) => {
                   if (item === "\n") {
@@ -202,8 +200,13 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
                       rows.push({ measures: [...currentMeasures] });
                       currentMeasures = [];
                     }
+                  } else if (item === "/r" || item === "/g" || item === "/e" || item === "/k") {
+                    if (item === "/r") currentColor = "red";
+                    else if (item === "/g") currentColor = "green";
+                    else if (item === "/e") currentColor = "blue";
+                    else if (item === "/k") currentColor = "black";
                   } else {
-                    currentMeasures.push(item);
+                    currentMeasures.push({ measureStr: item, color: currentColor });
                     if (currentMeasures.length === measuresPerRow) {
                       rows.push({ measures: [...currentMeasures] });
                       currentMeasures = [];
@@ -233,10 +236,11 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
                             {rowObj.measures.map((measure, mIdx) => (
                               <Measure 
                                 key={mIdx} 
-                                beats={parseMeasure(measure)} 
+                                beats={parseMeasure(measure.measureStr)} 
                                 index={rowIdx * measuresPerRow + mIdx} 
                                 notationMap={scoreData.notationMap}
                                 beatsCount={beatsCount}
+                                currentColor={measure.color}
                               />
                             ))}
                             {/* Fill empty space in the row if less than measuresPerRow */}
