@@ -15,8 +15,8 @@ const parseMeasure = (measureStr: string): string[][] => {
     let i = 0;
     while (i < beatStr.length) {
       let currentNote = "";
-      // Collect all prefixes (b for flat, . for dot above, ~ for tilde)
-      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~')) {
+      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp, r for red, g for green, e for blue)
+      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~' || beatStr[i] === '#' || beatStr[i] === 'r' || beatStr[i] === 'g' || beatStr[i] === 'e')) {
         currentNote += beatStr[i];
         i++;
       }
@@ -58,20 +58,34 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
       <div className={`${getAlignmentClass()} ${getFontSizeClass()} font-semibold leading-none`}>
         {notes.map((note, i) => {
           const hasFlat = note.includes('b');
+          const hasSharp = note.includes('#');
           const hasDotAbove = note.includes('.');
           const hasTilde = note.includes('~');
-          const baseNote = note.replace(/[b.~]/g, '');
+          const hasRed = note.includes('r');
+          const hasGreen = note.includes('g');
+          const hasBlue = note.includes('e');
+          const baseNote = note.replace(/[b.~#rge]/g, '');
           
           // Logic for consecutive '-' characters: 
           // if current is '-' and previous was also '-', show as space
-          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~]/g, '') === '-';
+          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~#rge]/g, '') === '-';
           const displayBase = isSecondDash ? "　" : toFullWidth(baseNote, notationMap);
           
+          let colorClass = "";
+          if (hasRed) colorClass = "text-[#FF0000]";
+          else if (hasGreen) colorClass = "text-[#008000]";
+          else if (hasBlue) colorClass = "text-[#0000FF]";
+          
           return (
-            <span key={i} className="relative inline-flex items-center justify-center w-[1.2em]">
+            <span key={i} className={`relative inline-flex items-center justify-center w-[1.2em] ${colorClass}`}>
               {hasFlat && (
                 <span className="absolute -top-7 left-0 right-0 text-center font-normal text-lg md:text-xl">
                   {notationMap["b"] || "♭"}
+                </span>
+              )}
+              {hasSharp && (
+                <span className="absolute -top-7 left-0 right-0 text-center font-normal text-lg md:text-xl">
+                  {notationMap["#"] || "#"}
                 </span>
               )}
               {hasTilde && (
