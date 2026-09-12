@@ -9,6 +9,7 @@ import { SCORE_DATA as score001 } from "./score001";
 import { SCORE_DATA as score002 } from "./score002";
 import { SCORE_DATA as score003 } from "./score003";
 import { SCORE_DATA as score004 } from "./score004";
+import { SCORE_DATA as score005 } from "./score005";
 import TestView from "./components/TestView";
 import HomeView from "./components/HomeView";
 import ScoreView from "./components/ScoreView";
@@ -18,7 +19,8 @@ const SCORE_LIST = [
   "浜辺の歌",
   "桜色のワルツ",
   "アシタカせっ記",
-  "系"
+  "系",
+  "銚子早打"
 ];
 
 // Map the display names to their respective data objects
@@ -26,7 +28,8 @@ const SCORE_DATA: Record<string, any> = {
   "浜辺の歌": score001,
   "桜色のワルツ": score002,
   "アシタカせっ記": score003,
-  "系": score004
+  "系": score004,
+  "銚子早打": score005
 };
 
 export default function App() {

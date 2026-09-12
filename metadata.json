@@ -1,5 +1,8 @@
 {
   "name": "篠笛曲集",
   "description": "一個優雅的篠笛（日本橫笛）樂譜閱讀器，提供清晰的單線小節線譜面。",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
