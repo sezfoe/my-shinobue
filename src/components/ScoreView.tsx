@@ -162,9 +162,10 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
   return (
     <div className="min-h-screen bg-[#f5f5f0] text-black font-serif selection:bg-stone-200 selection:text-stone-800">
       {/* Header */}
-      <header className="max-w-[1600px] mx-auto pt-10 pb-6 px-4 md:px-6">
+      <header className="max-w-[1600px] mx-auto pt-[max(2rem,env(safe-area-inset-top))] pb-6 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
         <div className="relative flex items-center justify-center">
           <button 
+            id="score-back-btn"
             onClick={onBack}
             className="absolute left-0 p-3 hover:bg-stone-200 rounded-full transition-colors print:hidden"
             title="Back to Home"
@@ -192,7 +193,7 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
       </header>
 
       {/* Score Area - All Sections in One Block */}
-      <main className="max-w-[1600px] mx-auto px-2 md:px-4 pb-20">
+      <main className="max-w-[1600px] mx-auto px-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(5rem,env(safe-area-inset-bottom))]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

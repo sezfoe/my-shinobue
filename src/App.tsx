@@ -13,6 +13,7 @@ import { SCORE_DATA as score005 } from "./score005";
 import TestView from "./components/TestView";
 import HomeView from "./components/HomeView";
 import ScoreView from "./components/ScoreView";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 
 // List of available scores (Button labels)
 const SCORE_LIST = [
@@ -68,49 +69,52 @@ export default function App() {
   };
 
   return (
-    <AnimatePresence mode="wait">
-      {view === "home" && (
-        <motion.div
-          key="home"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-        >
-          <HomeView 
-            scoreList={SCORE_LIST} 
-            onSelect={handleSelect} 
-            onGoToBlank={handleGoToBlank} 
-          />
-        </motion.div>
-      )}
+    <>
+      <AnimatePresence mode="wait">
+        {view === "home" && (
+          <motion.div
+            key="home"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <HomeView 
+              scoreList={SCORE_LIST} 
+              onSelect={handleSelect} 
+              onGoToBlank={handleGoToBlank} 
+            />
+          </motion.div>
+        )}
 
-      {view === "score" && selectedScore && (
-        <motion.div
-          key="score"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <ScoreView 
-            scoreData={SCORE_DATA[selectedScore]} 
-            onBack={handleBack} 
-          />
-        </motion.div>
-      )}
+        {view === "score" && selectedScore && (
+          <motion.div
+            key="score"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ScoreView 
+              scoreData={SCORE_DATA[selectedScore]} 
+              onBack={handleBack} 
+            />
+          </motion.div>
+        )}
 
-      {view === "blank" && (
-        <motion.div
-          key="test"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.5 }}
-        >
-          <TestView onBack={handleBack} />
-        </motion.div>
-      )}
-    </AnimatePresence>
+        {view === "blank" && (
+          <motion.div
+            key="test"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <TestView onBack={handleBack} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <OfflineIndicator />
+    </>
   );
 }

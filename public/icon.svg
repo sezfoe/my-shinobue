@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#f5f5f0"/>
+  <!-- Circular inner crest frame -->
+  <circle cx="256" cy="256" r="216" fill="none" stroke="#e7e5e4" stroke-width="4"/>
+  <circle cx="256" cy="256" r="208" fill="#ffffff" />
+  
+  <!-- Bamboo flute (Shinobue) angled elegantly across -->
+  <g transform="rotate(-35 256 256)">
+    <!-- Flute body -->
+    <rect x="56" y="234" width="400" height="44" rx="22" fill="#292524" />
+    
+    <!-- Red rattan bindings (巻) -->
+    <rect x="90" y="232" width="16" height="48" rx="2" fill="#b91c1c" />
+    <rect x="114" y="232" width="10" height="48" rx="2" fill="#b91c1c" />
+    <rect x="170" y="232" width="12" height="48" rx="2" fill="#b91c1c" />
+    <rect x="390" y="232" width="16" height="48" rx="2" fill="#b91c1c" />
+    <rect x="414" y="232" width="20" height="48" rx="2" fill="#b91c1c" />
+    
+    <!-- Mouthpiece / Blow hole (歌口) -->
+    <ellipse cx="146" cy="256" rx="9" ry="12" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+    
+    <!-- Finger holes (指孔) 7 holes for traditional shinobue -->
+    <circle cx="220" cy="256" r="7.5" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+    <circle cx="252" cy="256" r="7.5" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+    <circle cx="284" cy="256" r="7.5" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+    <circle cx="316" cy="256" r="7.5" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+    <circle cx="348" cy="256" r="7" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+    <circle cx="376" cy="256" r="6.5" fill="#f5f5f0" stroke="#78716c" stroke-width="1.5"/>
+  </g>
+
+  <!-- Kanji badge "笛" / "譜" subtitled -->
+  <g transform="translate(256, 380)">
+    <rect x="-56" y="-20" width="112" height="38" rx="19" fill="#1c1917" />
+    <text x="0" y="5" font-family="-apple-system, BlinkMacSystemFont, 'Hiragino Mincho ProN', 'Songti TC', serif" font-size="20" font-weight="bold" fill="#f5f5f0" text-anchor="middle" letter-spacing="4">篠 笛</text>
+  </g>
+</svg>

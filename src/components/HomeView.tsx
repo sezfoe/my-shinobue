@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
+import { PWAInstallButton } from "./PWAInstallButton";
 
 interface HomeViewProps {
   scoreList: string[];
@@ -7,13 +8,17 @@ interface HomeViewProps {
   onGoToBlank: () => void;
 }
 
-const HomeView: React.FC<HomeViewProps> = ({ scoreList, onSelect, onGoToBlank }) => {
+const HomeView: React.FC<HomeViewProps> = ({ scoreList, onSelect }) => {
   return (
-    <div className="min-h-screen bg-[#f5f5f0] p-8 flex flex-col gap-6 items-center justify-center">
+    <div 
+      id="home-view-container"
+      className="min-h-screen bg-[#f5f5f0] pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))] pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] flex flex-col gap-6 items-center justify-center"
+    >
       <div className="flex flex-col gap-4 w-full max-w-xs">
         {scoreList.map((scoreName) => (
           <motion.button
             key={scoreName}
+            id={`score-btn-${scoreName}`}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(scoreName)}
@@ -23,8 +28,13 @@ const HomeView: React.FC<HomeViewProps> = ({ scoreList, onSelect, onGoToBlank })
           </motion.button>
         ))}
       </div>
+
+      <div className="w-full max-w-xs flex flex-col items-center">
+        <PWAInstallButton />
+      </div>
     </div>
   );
 };
 
 export default HomeView;
+
