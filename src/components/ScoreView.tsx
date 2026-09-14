@@ -66,7 +66,22 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
           // Logic for consecutive '-' characters: 
           // if current is '-' and previous was also '-', show as space
           const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~#]/g, '') === '-';
-          const displayBase = isSecondDash ? "　" : toFullWidth(baseNote, notationMap);
+          
+          // Isolated '-' at position 2 or 3 (0-indexed: i === 1 || i === 2)
+          const isIsolatedDash = 
+            baseNote === '-' && 
+            (i === 1 || i === 2) &&
+            (i === 0 || notes[i - 1].replace(/[b.~#]/g, '') !== '-') &&
+            (i === notes.length - 1 || notes[i + 1].replace(/[b.~#]/g, '') !== '-');
+
+          let displayBase = "";
+          if (isSecondDash) {
+            displayBase = "　";
+          } else if (isIsolatedDash) {
+            displayBase = "‧";
+          } else {
+            displayBase = toFullWidth(baseNote, notationMap);
+          }
           
           let colorClass = "";
           if (currentColor === "red") colorClass = "text-[#FF0000]";
