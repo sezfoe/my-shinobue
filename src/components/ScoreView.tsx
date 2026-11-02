@@ -18,7 +18,7 @@ const parseMeasure = (measureStr: string): string[][] => {
     let i = 0;
     while (i < beatStr.length) {
       let currentNote = "";
-      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp, /t for half-tone note)
+      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp, /t for 20% measure color note)
       while (i < beatStr.length) {
         if (beatStr.startsWith('/t', i)) {
           currentNote += '/t';
@@ -67,7 +67,7 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
     <div className={`relative flex flex-col items-center justify-center px-0 ${(beatsCount === 4 || beatsCount === 3) ? 'w-full' : 'min-w-[32px] md:min-w-[36px]'} h-12 text-black`}>
       <div className={`${getAlignmentClass()} ${getFontSizeClass()} font-semibold leading-none`}>
         {notes.map((note, i) => {
-          const isHalfColor = note.includes('/t');
+          const isTwentyPercentColor = note.includes('/t');
           const hasFlat = note.includes('b');
           const hasSharp = note.includes('#');
           const hasDotAbove = note.includes('.');
@@ -106,7 +106,11 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
           }
           
           return (
-            <span key={i} className={`relative inline-flex items-center justify-center w-[1.2em] ${colorClass} ${isHalfColor ? 'opacity-50' : ''}`}>
+            <span 
+              key={i} 
+              className={`relative inline-flex items-center justify-center w-[1.2em] ${colorClass} ${isTwentyPercentColor ? 'opacity-20' : ''}`}
+              style={isTwentyPercentColor ? { opacity: 0.2 } : undefined}
+            >
               {hasFlat && (
                 <span className="absolute -top-7 left-0 right-0 text-center font-normal text-lg md:text-xl">
                   {notationMap["b"] || "♭"}
