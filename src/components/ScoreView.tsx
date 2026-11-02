@@ -7,6 +7,9 @@ const toFullWidth = (char: string, notationMap: Record<string, string>) => {
   return char.split('').map(c => notationMap[c] || c).join('');
 };
 
+// Helper to clean note string of modifiers and color prefixes
+const cleanNote = (n: string) => n.replace(/\/t/g, '').replace(/[b.~#]/g, '');
+
 // Parser for the new string-based measure format
 const parseMeasure = (measureStr: string): string[][] => {
   const beats = measureStr.split(',');
@@ -15,10 +18,17 @@ const parseMeasure = (measureStr: string): string[][] => {
     let i = 0;
     while (i < beatStr.length) {
       let currentNote = "";
-      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp)
-      while (i < beatStr.length && (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~' || beatStr[i] === '#')) {
-        currentNote += beatStr[i];
-        i++;
+      // Collect all prefixes (b for flat, . for dot above, ~ for tilde, # for sharp, /t for half-tone note)
+      while (i < beatStr.length) {
+        if (beatStr.startsWith('/t', i)) {
+          currentNote += '/t';
+          i += 2;
+        } else if (beatStr[i] === 'b' || beatStr[i] === '.' || beatStr[i] === '~' || beatStr[i] === '#') {
+          currentNote += beatStr[i];
+          i++;
+        } else {
+          break;
+        }
       }
       // Add the base note character
       if (i < beatStr.length) {
@@ -57,22 +67,23 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
     <div className={`relative flex flex-col items-center justify-center px-0 ${(beatsCount === 4 || beatsCount === 3) ? 'w-full' : 'min-w-[32px] md:min-w-[36px]'} h-12 text-black`}>
       <div className={`${getAlignmentClass()} ${getFontSizeClass()} font-semibold leading-none`}>
         {notes.map((note, i) => {
+          const isHalfColor = note.includes('/t');
           const hasFlat = note.includes('b');
           const hasSharp = note.includes('#');
           const hasDotAbove = note.includes('.');
           const hasTilde = note.includes('~');
-          const baseNote = note.replace(/[b.~#]/g, '');
+          const baseNote = cleanNote(note);
           
           // Logic for consecutive '-' characters: 
           // if current is '-' and previous was also '-', show as space
-          const isSecondDash = baseNote === '-' && i > 0 && notes[i-1].replace(/[b.~#]/g, '') === '-';
+          const isSecondDash = baseNote === '-' && i > 0 && cleanNote(notes[i-1]) === '-';
           
           // Isolated '-' at position 2 or 3 (0-indexed: i === 1 || i === 2)
           const isIsolatedDash = 
             baseNote === '-' && 
             (i === 1 || i === 2) &&
-            (i === 0 || notes[i - 1].replace(/[b.~#]/g, '') !== '-') &&
-            (i === notes.length - 1 || notes[i + 1].replace(/[b.~#]/g, '') !== '-');
+            (i === 0 || cleanNote(notes[i - 1]) !== '-') &&
+            (i === notes.length - 1 || cleanNote(notes[i + 1]) !== '-');
 
           let displayBase = "";
           if (isSecondDash) {
@@ -84,12 +95,18 @@ const Beat: React.FC<{ notes: string[]; notationMap: Record<string, string>; bea
           }
           
           let colorClass = "";
-          if (currentColor === "red") colorClass = "text-[#FF0000]";
-          else if (currentColor === "green") colorClass = "text-[#008000]";
-          else if (currentColor === "blue") colorClass = "text-[#0000FF]";
+          if (currentColor === "red") {
+            colorClass = "text-[#FF0000]";
+          } else if (currentColor === "green") {
+            colorClass = "text-[#008000]";
+          } else if (currentColor === "blue") {
+            colorClass = "text-[#0000FF]";
+          } else {
+            colorClass = "text-black";
+          }
           
           return (
-            <span key={i} className={`relative inline-flex items-center justify-center w-[1.2em] ${colorClass}`}>
+            <span key={i} className={`relative inline-flex items-center justify-center w-[1.2em] ${colorClass} ${isHalfColor ? 'opacity-50' : ''}`}>
               {hasFlat && (
                 <span className="absolute -top-7 left-0 right-0 text-center font-normal text-lg md:text-xl">
                   {notationMap["b"] || "♭"}
@@ -151,7 +168,14 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
   const sectionsToRender = Object.keys(scoreData.sections);
 
   const getSectionLabel = (key: string) => {
-    return scoreData.sectionLabels[key as keyof typeof scoreData.sectionLabels] || key;
+    if (scoreData.sectionLabels && scoreData.sectionLabels[key as keyof typeof scoreData.sectionLabels]) {
+      return scoreData.sectionLabels[key as keyof typeof scoreData.sectionLabels];
+    }
+    // 以底線開頭的 key 名不顯示文字標籤（方案 2-1）
+    if (key.startsWith('_')) {
+      return "";
+    }
+    return key;
   };
 
   const beatsCount = scoreData.beats || 3;
@@ -202,7 +226,7 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
         >
           <div className="p-2 md:p-4">
             <div className="space-y-1">
-              {sectionsToRender.map((sectionKey) => {
+              {sectionsToRender.map((sectionKey, sectionIndex) => {
                 const currentSection = scoreData.sections[sectionKey as keyof typeof scoreData.sections];
                 
                 // Group measures into rows based on "\n" marker, color controls, or 8-measure limit
@@ -235,15 +259,26 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
                   rows.push({ measures: [...currentMeasures] });
                 }
 
+                const label = getSectionLabel(sectionKey);
+
                 return (
                   <div key={sectionKey} className="space-y-1">
-                    {/* Section Header */}
-                    <div className="flex items-center gap-4">
-                      <span className="text-xl font-bold text-black uppercase font-serif">
-                        {getSectionLabel(sectionKey)}
-                      </span>
-                      <div className="h-[1px] flex-1 bg-stone-100" />
-                    </div>
+                    {/* Section Header or Divider */}
+                    {label ? (
+                      <div className="flex items-center gap-4 pt-3 pb-1">
+                        <span className="text-xl font-bold text-black uppercase font-serif">
+                          {label}
+                        </span>
+                        <div className="h-[1px] flex-1 bg-stone-300" />
+                      </div>
+                    ) : (
+                      /* 以底線開頭的 key：純格線分隔，不顯示 key 名稱 */
+                      sectionIndex > 0 ? (
+                        <div className="py-3">
+                          <div className="border-t border-stone-300 w-full" />
+                        </div>
+                      ) : null
+                    )}
 
                     <div className="space-y-0 overflow-x-auto custom-scrollbar">
                       {rows.map((rowObj, rowIdx) => (
@@ -274,19 +309,23 @@ const ScoreView: React.FC<ScoreViewProps> = ({ scoreData, onBack }) => {
 
             {/* Legend & Info */}
             <div className="mt-12 pt-8 border-t border-stone-100 flex flex-col gap-3 leading-tight">
-              <div className="flex flex-wrap items-center gap-3 text-lg tracking-widest">
-                <span className="text-sm uppercase tracking-[0.2em] text-black font-sans mr-2">演奏順序:</span>
-                {scoreData.sequence.map((s: string, i: number) => (
-                  <React.Fragment key={i}>
-                    <span className="text-black font-semibold uppercase">
-                      {getSectionLabel(s)}
-                    </span>
-                    {i < scoreData.sequence.length - 1 && (
-                      <span className="text-black/30 text-sm">→</span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
+              {scoreData.sequence && scoreData.sequence.length > 0 && (
+                <div className="flex flex-wrap items-center gap-3 text-lg tracking-widest">
+                  <span className="text-sm uppercase tracking-[0.2em] text-black font-sans mr-2">演奏順序:</span>
+                  {scoreData.sequence
+                    .filter((s: string) => Boolean(getSectionLabel(s)))
+                    .map((s: string, i: number, arr: string[]) => (
+                      <React.Fragment key={i}>
+                        <span className="text-black font-semibold uppercase">
+                          {getSectionLabel(s)}
+                        </span>
+                        {i < arr.length - 1 && (
+                          <span className="text-black/30 text-sm">→</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                </div>
+              )}
               {scoreData.demoUrl && (
                 <div className="text-lg text-black tracking-wider">
                   <span className="text-sm uppercase tracking-[0.2em] text-black font-sans mr-2">參考資料:</span>
