@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "motion/react";
-import { PWAInstallButton } from "./PWAInstallButton";
 
 interface HomeViewProps {
   scoreList: string[];
@@ -27,10 +26,6 @@ const HomeView: React.FC<HomeViewProps> = ({ scoreList, onSelect }) => {
             {scoreName}
           </motion.button>
         ))}
-      </div>
-
-      <div className="w-full max-w-xs flex flex-col items-center">
-        <PWAInstallButton />
       </div>
     </div>
   );
