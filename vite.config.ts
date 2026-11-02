@@ -50,8 +50,7 @@ export default defineConfig(({mode}) => {
           navigateFallback: '/index.html',
         },
         devOptions: {
-          enabled: true,
-          type: 'module',
+          enabled: false,
         },
       }),
     ],

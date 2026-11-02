@@ -14,6 +14,7 @@ import TestView from "./components/TestView";
 import HomeView from "./components/HomeView";
 import ScoreView from "./components/ScoreView";
 import { OfflineIndicator } from "./components/OfflineIndicator";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 // List of available scores (Button labels)
 const SCORE_LIST = [
@@ -69,15 +70,15 @@ export default function App() {
   };
 
   return (
-    <>
-      <AnimatePresence mode="wait">
+    <ErrorBoundary>
+      <AnimatePresence initial={false} mode="wait">
         {view === "home" && (
           <motion.div
             key="home"
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
           >
             <HomeView 
               scoreList={SCORE_LIST} 
@@ -93,7 +94,7 @@ export default function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
           >
             <ScoreView 
               scoreData={SCORE_DATA[selectedScore]} 
@@ -108,13 +109,13 @@ export default function App() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
           >
             <TestView onBack={handleBack} />
           </motion.div>
         )}
       </AnimatePresence>
       <OfflineIndicator />
-    </>
+    </ErrorBoundary>
   );
 }

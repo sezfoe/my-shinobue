@@ -18,5 +18,6 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
   min-height: 100vh;
-  min-height: -webkit-fill-available;
+  min-height: 100dvh;
 }
+
